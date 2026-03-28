@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
+// GET - Permite acessar via navegador para fazer o seed
+export async function GET() {
+  return POST();
+}
+
+// POST - Endpoint principal do seed
 export async function POST() {
   try {
     // Create admin user if not exists

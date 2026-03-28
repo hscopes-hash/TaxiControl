@@ -688,3 +688,56 @@ prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Trip`.`id` FR
  POST /api/seed 200 in 40ms (compile: 26ms, render: 13ms)
 prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
  POST /api/auth/login 200 in 332ms (compile: 23ms, render: 309ms)
+ GET / 200 in 147ms (compile: 2ms, render: 145ms)
+ GET /api/trips?status=FINALIZADA 200 in 34ms (compile: 26ms, render: 8ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/location 200 in 26ms (compile: 19ms, render: 7ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 50ms (compile: 21ms, render: 29ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 53ms (compile: 43ms, render: 9ms)
+ GET / 200 in 49ms (compile: 5ms, render: 44ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 7ms (compile: 1814µs, render: 5ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 6ms (compile: 1229µs, render: 5ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?status=FINALIZADA 200 in 6ms (compile: 1220µs, render: 5ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/location 200 in 4ms (compile: 1017µs, render: 3ms)
+ GET / 200 in 45ms (compile: 6ms, render: 40ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?status=FINALIZADA 200 in 8ms (compile: 1887µs, render: 7ms)
+ GET /api/location 200 in 8ms (compile: 1757µs, render: 6ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/reports 200 in 16ms (compile: 4ms, render: 12ms)
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 11ms (compile: 2ms, render: 9ms)
+ GET / 200 in 78ms (compile: 56ms, render: 22ms)
+ GET / 200 in 30ms (compile: 4ms, render: 26ms)
+ GET / 200 in 17ms (compile: 3ms, render: 15ms)
+ GET / 200 in 35ms (compile: 2ms, render: 33ms)
+ GET / 200 in 51ms (compile: 4ms, render: 47ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 27ms (compile: 4ms, render: 23ms)
+ GET / 200 in 14ms (compile: 3ms, render: 11ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 13ms (compile: 3ms, render: 11ms)
+ GET / 200 in 23ms (compile: 2ms, render: 21ms)
