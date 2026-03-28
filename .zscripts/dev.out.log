@@ -1,0 +1,558 @@
+==========================================
+[2026-03-28 22:02:16] Starting: bun install
+==========================================
+[BUN] Installing dependencies...
+[0.39ms] ".env"
+bun install v1.3.10 (30e609e0)
+
++ @tailwindcss/postcss@4.1.18
++ @types/react@19.2.8
++ @types/react-dom@19.2.3
++ bun-types@1.3.6
++ eslint@9.39.2
++ eslint-config-next@16.1.3
++ tailwindcss@4.1.18
++ tw-animate-css@1.4.0
++ typescript@5.9.3
++ @dnd-kit/core@6.3.1
++ @dnd-kit/sortable@10.0.0
++ @dnd-kit/utilities@3.2.2
++ @hookform/resolvers@5.2.2
++ @mdxeditor/editor@3.52.3
++ @prisma/client@6.19.2
++ @radix-ui/react-accordion@1.2.12
++ @radix-ui/react-alert-dialog@1.1.15
++ @radix-ui/react-aspect-ratio@1.1.8
++ @radix-ui/react-avatar@1.1.11
++ @radix-ui/react-checkbox@1.3.3
++ @radix-ui/react-collapsible@1.1.12
++ @radix-ui/react-context-menu@2.2.16
++ @radix-ui/react-dialog@1.1.15
++ @radix-ui/react-dropdown-menu@2.1.16
++ @radix-ui/react-hover-card@1.1.15
++ @radix-ui/react-label@2.1.8
++ @radix-ui/react-menubar@1.1.16
++ @radix-ui/react-navigation-menu@1.2.14
++ @radix-ui/react-popover@1.1.15
++ @radix-ui/react-progress@1.1.8
++ @radix-ui/react-radio-group@1.3.8
++ @radix-ui/react-scroll-area@1.2.10
++ @radix-ui/react-select@2.2.6
++ @radix-ui/react-separator@1.1.8
++ @radix-ui/react-slider@1.3.6
++ @radix-ui/react-slot@1.2.4
++ @radix-ui/react-switch@1.2.6
++ @radix-ui/react-tabs@1.1.13
++ @radix-ui/react-toast@1.2.15
++ @radix-ui/react-toggle@1.1.10
++ @radix-ui/react-toggle-group@1.1.11
++ @radix-ui/react-tooltip@1.2.8
++ @reactuses/core@6.1.9
++ @tanstack/react-query@5.90.19
++ @tanstack/react-table@8.21.3
++ class-variance-authority@0.7.1
++ clsx@2.1.1
++ cmdk@1.1.1
++ date-fns@4.1.0
++ embla-carousel-react@8.6.0
++ framer-motion@12.26.2
++ input-otp@1.4.2
++ lucide-react@0.525.0
++ next@16.1.3
++ next-auth@4.24.13
++ next-intl@4.7.0
++ next-themes@0.4.6
++ prisma@6.19.2
++ react@19.2.3
++ react-day-picker@9.13.0
++ react-dom@19.2.3
++ react-hook-form@7.71.1
++ react-markdown@10.1.0
++ react-resizable-panels@3.0.6
++ react-syntax-highlighter@15.6.6
++ recharts@2.15.4
++ sharp@0.34.5
++ sonner@2.0.7
++ tailwind-merge@3.4.0
++ tailwindcss-animate@1.0.7
++ uuid@11.1.0
++ vaul@1.1.2
++ z-ai-web-dev-sdk@0.0.17
++ zod@4.3.5
++ zustand@5.0.10
+
+827 packages installed [8.39s]
+==========================================
+[2026-03-28 22:02:25] Completed: bun install
+[LOG] Step: bun install | Duration: 9s
+==========================================
+
+==========================================
+[2026-03-28 22:02:25] Starting: bun run db:push
+==========================================
+[BUN] Setting up database...
+$ prisma db push
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "custom.db" at "file:/home/z/my-project/db/custom.db"
+
+SQLite database custom.db created at file:/home/z/my-project/db/custom.db
+
+🚀  Your database is now in sync with your Prisma schema. Done in 19ms
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v6.19.2) to ./node_modules/@prisma/client in 73ms
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.19.2 -> 7.6.0                       │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+==========================================
+[2026-03-28 22:02:26] Completed: bun run db:push
+[LOG] Step: bun run db:push | Duration: 1s
+==========================================
+
+==========================================
+[2026-03-28 22:02:26] Starting: Starting Next.js dev server
+==========================================
+[BUN] Starting development server...
+==========================================
+$ next dev -p 3000 2>&1 | tee dev.log
+[2026-03-28 22:02:26] Completed: Starting Next.js dev server
+[LOG] Step: Starting Next.js dev server | Duration: 0s
+==========================================
+
+==========================================
+[2026-03-28 22:02:26] Starting: Waiting for Next.js dev server
+==========================================
+Waiting for Next.js dev server to be ready on localhost:3000...
+Attempt 1/60: Next.js dev server not ready yet, waiting...
+▲ Next.js 16.1.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://21.0.5.107:3000
+- Environments: .env
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next/dev/types/**/*.ts'
+
+  The following mandatory changes were made to your tsconfig.json:
+
+  	- jsx was set to react-jsx (next.js uses the React automatic runtime)
+
+✓ Ready in 905ms
+ GET / 200 in 2.6s (compile: 2.4s, render: 124ms)
+Next.js dev server is ready!
+ GET / 200 in 2.5s (compile: 2.3s, render: 168ms)
+==========================================
+[2026-03-28 22:02:30] Completed: Waiting for Next.js dev server
+[LOG] Step: Waiting for Next.js dev server | Duration: 4s
+==========================================
+
+==========================================
+[2026-03-28 22:02:30] Starting: Health check
+==========================================
+[BUN] Performing health check...
+ GET / 200 in 40ms (compile: 2ms, render: 38ms)
+[BUN] Health check passed
+==========================================
+[2026-03-28 22:02:30] Completed: Health check
+[LOG] Step: Health check | Duration: 0s
+==========================================
+
+==========================================
+[2026-03-28 22:02:30] Starting: Starting mini-services
+==========================================
+Found mini-services directory, scanning for sub-services...
+Mini-services startup completed. Started 0 service(s).
+==========================================
+[2026-03-28 22:02:30] Completed: Starting mini-services
+[LOG] Step: Starting mini-services | Duration: 0s
+==========================================
+
+Next.js dev server is running in background (PID: 653).
+Use 'kill 653' to stop it.
+⚠ Cross origin request detected from preview-chat-8b7a9383-702b-4b94-b965-4972d566f24f.space.z.ai to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+  Reload env: .env.local
+ GET / 200 in 80ms (compile: 42ms, render: 38ms)
+ GET / 200 in 48ms (compile: 29ms, render: 20ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 15ms (compile: 1681µs, render: 14ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 100ms (compile: 88ms, render: 13ms)
+ GET / 200 in 20ms (compile: 2ms, render: 18ms)
+ GET / 200 in 13ms (compile: 1852µs, render: 11ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 13ms (compile: 1698µs, render: 11ms)
+ GET / 200 in 12ms (compile: 1507µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1529µs, render: 9ms)
+ GET / 200 in 16ms (compile: 2ms, render: 14ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 11ms (compile: 1459µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1442µs, render: 10ms)
+ GET / 200 in 16ms (compile: 2ms, render: 14ms)
+ GET / 200 in 21ms (compile: 2ms, render: 19ms)
+ GET / 200 in 12ms (compile: 1900µs, render: 10ms)
+ GET / 200 in 14ms (compile: 1799µs, render: 12ms)
+ GET / 200 in 11ms (compile: 1674µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1688µs, render: 11ms)
+ GET / 200 in 36ms (compile: 3ms, render: 33ms)
+ GET / 200 in 12ms (compile: 1690µs, render: 11ms)
+ GET / 200 in 11ms (compile: 1490µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1603µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1633µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1641µs, render: 11ms)
+ GET / 200 in 12ms (compile: 1600µs, render: 10ms)
+ GET / 200 in 66ms (compile: 27ms, render: 40ms)
+ GET / 200 in 13ms (compile: 1756µs, render: 11ms)
+ GET / 200 in 11ms (compile: 1368µs, render: 9ms)
+ GET / 200 in 11ms (compile: 1322µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1504µs, render: 9ms)
+ GET / 200 in 12ms (compile: 1575µs, render: 10ms)
+ GET / 200 in 13ms (compile: 1565µs, render: 12ms)
+ GET / 200 in 16ms (compile: 1893µs, render: 14ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 17ms (compile: 2ms, render: 14ms)
+ GET / 200 in 19ms (compile: 2ms, render: 17ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query INSERT INTO `main`.`User` (`id`, `name`, `email`, `password`, `role`, `phone`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `name` AS `name`, `email` AS `email`, `password` AS `password`, `role` AS `role`, `phone` AS `phone`, `licensePlate` AS `licensePlate`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query INSERT INTO `main`.`User` (`id`, `name`, `email`, `password`, `role`, `phone`, `licensePlate`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `name` AS `name`, `email` AS `email`, `password` AS `password`, `role` AS `role`, `phone` AS `phone`, `licensePlate` AS `licensePlate`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query INSERT INTO `main`.`Settings` (`id`, `flagRate`, `pricePerKm`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?) RETURNING `id` AS `id`, `flagRate` AS `flagRate`, `pricePerKm` AS `pricePerKm`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Trip`.`id` FROM `main`.`Trip` WHERE `main`.`Trip`.`driverId` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query INSERT INTO `main`.`Trip` (`id`, `origin`, `destination`, `distanceKm`, `fareAmount`, `status`, `startedAt`, `endedAt`, `driverId`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `origin` AS `origin`, `destination` AS `destination`, `distanceKm` AS `distanceKm`, `fareAmount` AS `fareAmount`, `status` AS `status`, `startedAt` AS `startedAt`, `endedAt` AS `endedAt`, `driverId` AS `driverId`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query INSERT INTO `main`.`Trip` (`id`, `origin`, `destination`, `distanceKm`, `fareAmount`, `status`, `startedAt`, `endedAt`, `driverId`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `origin` AS `origin`, `destination` AS `destination`, `distanceKm` AS `distanceKm`, `fareAmount` AS `fareAmount`, `status` AS `status`, `startedAt` AS `startedAt`, `endedAt` AS `endedAt`, `driverId` AS `driverId`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query INSERT INTO `main`.`Trip` (`id`, `origin`, `destination`, `distanceKm`, `fareAmount`, `status`, `startedAt`, `endedAt`, `driverId`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `origin` AS `origin`, `destination` AS `destination`, `distanceKm` AS `distanceKm`, `fareAmount` AS `fareAmount`, `status` AS `status`, `startedAt` AS `startedAt`, `endedAt` AS `endedAt`, `driverId` AS `driverId`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query INSERT INTO `main`.`Trip` (`id`, `origin`, `destination`, `distanceKm`, `fareAmount`, `status`, `startedAt`, `endedAt`, `driverId`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `origin` AS `origin`, `destination` AS `destination`, `distanceKm` AS `distanceKm`, `fareAmount` AS `fareAmount`, `status` AS `status`, `startedAt` AS `startedAt`, `endedAt` AS `endedAt`, `driverId` AS `driverId`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+prisma:query INSERT INTO `main`.`Trip` (`id`, `origin`, `destination`, `distanceKm`, `fareAmount`, `status`, `startedAt`, `endedAt`, `driverId`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `origin` AS `origin`, `destination` AS `destination`, `distanceKm` AS `distanceKm`, `fareAmount` AS `fareAmount`, `status` AS `status`, `startedAt` AS `startedAt`, `endedAt` AS `endedAt`, `driverId` AS `driverId`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/seed 200 in 989ms (compile: 366ms, render: 624ms)
+ GET / 200 in 21ms (compile: 3ms, render: 17ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 43ms (compile: 2ms, render: 41ms)
+ GET / 200 in 29ms (compile: 3ms, render: 26ms)
+ GET / 200 in 16ms (compile: 1566µs, render: 15ms)
+ GET / 200 in 12ms (compile: 1404µs, render: 11ms)
+ GET / 200 in 16ms (compile: 2ms, render: 13ms)
+ GET / 200 in 16ms (compile: 1279µs, render: 15ms)
+ GET / 200 in 24ms (compile: 1264µs, render: 23ms)
+ GET / 200 in 15ms (compile: 1369µs, render: 14ms)
+ GET / 200 in 12ms (compile: 1822µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1170µs, render: 11ms)
+ GET / 200 in 10ms (compile: 1313µs, render: 9ms)
+ GET / 200 in 33ms (compile: 1358µs, render: 31ms)
+ GET / 200 in 19ms (compile: 2ms, render: 17ms)
+ GET / 200 in 13ms (compile: 1279µs, render: 11ms)
+ GET / 200 in 15ms (compile: 1419µs, render: 14ms)
+ GET / 200 in 24ms (compile: 1978µs, render: 22ms)
+ GET / 200 in 21ms (compile: 1408µs, render: 20ms)
+ GET / 200 in 12ms (compile: 1467µs, render: 10ms)
+ GET / 200 in 27ms (compile: 2ms, render: 25ms)
+ GET / 200 in 12ms (compile: 1835µs, render: 11ms)
+ GET / 200 in 14ms (compile: 1509µs, render: 13ms)
+ GET / 200 in 26ms (compile: 1482µs, render: 24ms)
+ GET / 200 in 12ms (compile: 1421µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1421µs, render: 9ms)
+ GET / 200 in 45ms (compile: 1584µs, render: 43ms)
+ GET / 200 in 34ms (compile: 2ms, render: 32ms)
+ GET / 200 in 19ms (compile: 2ms, render: 16ms)
+ GET / 200 in 45ms (compile: 3ms, render: 42ms)
+ GET / 200 in 44ms (compile: 15ms, render: 29ms)
+ GET / 200 in 13ms (compile: 1575µs, render: 12ms)
+ GET / 200 in 12ms (compile: 1678µs, render: 10ms)
+ GET / 200 in 32ms (compile: 1441µs, render: 30ms)
+ GET / 200 in 17ms (compile: 1892µs, render: 15ms)
+ GET / 200 in 39ms (compile: 2ms, render: 37ms)
+ GET / 200 in 25ms (compile: 4ms, render: 21ms)
+ GET / 200 in 10ms (compile: 1370µs, render: 9ms)
+ GET / 200 in 10ms (compile: 1246µs, render: 9ms)
+ GET / 200 in 9ms (compile: 1051µs, render: 8ms)
+ GET / 200 in 21ms (compile: 1215µs, render: 20ms)
+ GET / 200 in 12ms (compile: 1189µs, render: 11ms)
+ GET / 200 in 11ms (compile: 1868µs, render: 9ms)
+ GET / 200 in 12ms (compile: 1175µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1367µs, render: 9ms)
+ GET / 200 in 18ms (compile: 1166µs, render: 17ms)
+ GET / 200 in 10ms (compile: 1132µs, render: 9ms)
+ GET / 200 in 9ms (compile: 1125µs, render: 8ms)
+ GET / 200 in 10ms (compile: 1279µs, render: 9ms)
+ GET / 200 in 19ms (compile: 1651µs, render: 18ms)
+ GET / 200 in 13ms (compile: 1528µs, render: 11ms)
+ GET / 200 in 21ms (compile: 1560µs, render: 20ms)
+ GET / 200 in 11ms (compile: 1418µs, render: 9ms)
+ GET / 200 in 10ms (compile: 1394µs, render: 9ms)
+ GET / 200 in 11ms (compile: 1365µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1594µs, render: 10ms)
+ GET / 200 in 15ms (compile: 1536µs, render: 14ms)
+ GET / 200 in 16ms (compile: 1870µs, render: 14ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 65ms (compile: 1920µs, render: 63ms)
+ GET / 200 in 48ms (compile: 3ms, render: 45ms)
+ GET / 200 in 48ms (compile: 15ms, render: 33ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 11ms (compile: 1409µs, render: 9ms)
+ GET / 200 in 22ms (compile: 1536µs, render: 20ms)
+ GET / 200 in 12ms (compile: 1330µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1350µs, render: 10ms)
+ GET / 200 in 31ms (compile: 2ms, render: 29ms)
+ GET / 200 in 16ms (compile: 1830µs, render: 15ms)
+ GET / 200 in 33ms (compile: 1845µs, render: 31ms)
+ GET / 200 in 19ms (compile: 1737µs, render: 17ms)
+ GET / 200 in 17ms (compile: 1949µs, render: 15ms)
+ GET / 200 in 34ms (compile: 1904µs, render: 32ms)
+ GET / 200 in 12ms (compile: 1401µs, render: 11ms)
+ GET / 200 in 11ms (compile: 1325µs, render: 10ms)
+ GET / 200 in 23ms (compile: 1264µs, render: 22ms)
+ GET / 200 in 12ms (compile: 1487µs, render: 10ms)
+ GET / 200 in 24ms (compile: 1705µs, render: 22ms)
+ GET / 200 in 13ms (compile: 1620µs, render: 11ms)
+ GET / 200 in 12ms (compile: 1415µs, render: 10ms)
+ GET / 200 in 24ms (compile: 1611µs, render: 22ms)
+ GET / 200 in 13ms (compile: 1532µs, render: 12ms)
+ GET / 200 in 14ms (compile: 1809µs, render: 12ms)
+ GET / 200 in 12ms (compile: 1738µs, render: 10ms)
+ GET / 200 in 18ms (compile: 1454µs, render: 17ms)
+ GET / 200 in 11ms (compile: 1280µs, render: 10ms)
+ GET / 200 in 10ms (compile: 1197µs, render: 9ms)
+ GET / 200 in 11ms (compile: 1416µs, render: 9ms)
+ GET / 200 in 12ms (compile: 1794µs, render: 10ms)
+ GET / 200 in 16ms (compile: 6ms, render: 10ms)
+ GET / 200 in 23ms (compile: 1598µs, render: 21ms)
+ GET / 200 in 13ms (compile: 1747µs, render: 11ms)
+ GET / 200 in 11ms (compile: 1219µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1404µs, render: 10ms)
+ GET / 200 in 10ms (compile: 1190µs, render: 9ms)
+ GET / 200 in 12ms (compile: 1727µs, render: 11ms)
+ GET / 200 in 44ms (compile: 1429µs, render: 42ms)
+ GET / 200 in 12ms (compile: 1454µs, render: 10ms)
+ GET / 200 in 13ms (compile: 1304µs, render: 11ms)
+ GET / 200 in 11ms (compile: 2ms, render: 9ms)
+ GET / 200 in 10ms (compile: 1201µs, render: 9ms)
+ GET / 200 in 10ms (compile: 1141µs, render: 9ms)
+ GET / 200 in 11ms (compile: 1185µs, render: 10ms)
+ GET / 200 in 11ms (compile: 1208µs, render: 10ms)
+ GET / 200 in 21ms (compile: 3ms, render: 18ms)
+✓ Compiled in 147ms
+✓ Compiled in 142ms
+✓ Compiled in 149ms
+✓ Compiled in 138ms
+✓ Compiled in 149ms
+✓ Compiled in 153ms
+✓ Compiled in 144ms
+✓ Compiled in 163ms
+✓ Compiled in 179ms
+✓ Compiled in 168ms
+✓ Compiled in 194ms
+✓ Compiled in 168ms
+✓ Compiled in 1646ms
+ GET / 200 in 39ms (compile: 10ms, render: 29ms)
+ GET / 200 in 370ms (compile: 64ms, render: 306ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 140ms (compile: 126ms, render: 14ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 100ms (compile: 90ms, render: 10ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 90ms (compile: 82ms, render: 7ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+ POST /api/auth/login 200 in 390ms (compile: 87ms, render: 303ms)
+ GET / 200 in 34ms (compile: 3ms, render: 31ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+ POST /api/auth/login 200 in 291ms (compile: 1564µs, render: 289ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 7ms (compile: 1688µs, render: 5ms)
+ GET /api/trips?status=FINALIZADA 200 in 89ms (compile: 81ms, render: 8ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 10ms (compile: 1393µs, render: 8ms)
+ GET /api/location 200 in 106ms (compile: 90ms, render: 16ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/location 200 in 6ms (compile: 1797µs, render: 5ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/location 200 in 11ms (compile: 3ms, render: 8ms)
+ GET /api/location 200 in 8ms (compile: 2ms, render: 6ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE `main`.`User`.`role` = ? ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users?role=MOTORISTA 200 in 8ms (compile: 1877µs, render: 7ms)
+ GET /api/users 200 in 8ms (compile: 1921µs, render: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?status=FINALIZADA 200 in 7ms (compile: 1533µs, render: 6ms)
+ GET /api/location 200 in 6ms (compile: 1621µs, render: 5ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 7ms (compile: 1307µs, render: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+ POST /api/auth/login 200 in 291ms (compile: 1922µs, render: 289ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE (`main`.`Trip`.`driverId` = ? AND `main`.`Trip`.`status` = ?) ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?driverId=cmnavp16m0001x4ipyo7cmedi&status=FINALIZADA 200 in 8ms (compile: 3ms, render: 5ms)
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 6ms (compile: 2ms, render: 4ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 7ms (compile: 1816µs, render: 5ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 6ms (compile: 1738µs, render: 5ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`driverId` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?driverId=cmnavp16m0001x4ipyo7cmedi 200 in 6ms (compile: 1559µs, render: 4ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE (`main`.`User`.`email` = ? AND 1=1) LIMIT ? OFFSET ?
+ POST /api/auth/login 200 in 298ms (compile: 1768µs, render: 297ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?status=FINALIZADA 200 in 12ms (compile: 2ms, render: 9ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users 200 in 13ms (compile: 7ms, render: 6ms)
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/location 200 in 10ms (compile: 4ms, render: 6ms)
+ GET /api/reports 200 in 14ms (compile: 3ms, render: 11ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE `main`.`User`.`role` = ? ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/users?role=MOTORISTA 200 in 8ms (compile: 1963µs, render: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 10ms (compile: 2ms, render: 7ms)
+prisma:query SELECT 1
+ GET /api/users?role=MOTORISTA 200 in 7ms (compile: 1648µs, render: 6ms)
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE `main`.`User`.`role` = ? ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/settings 200 in 7ms (compile: 1926µs, render: 5ms)
+ GET / 200 in 76ms (compile: 49ms, render: 27ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 18ms (compile: 3ms, render: 14ms)
+ GET / 200 in 16ms (compile: 1774µs, render: 14ms)
+ GET / 200 in 12ms (compile: 3ms, render: 10ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 20ms (compile: 4ms, render: 17ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 22ms (compile: 3ms, render: 19ms)
+ GET / 200 in 11ms (compile: 1816µs, render: 9ms)
+ GET / 200 in 12ms (compile: 1859µs, render: 11ms)
+ GET / 200 in 18ms (compile: 1885µs, render: 16ms)
+ GET / 200 in 11ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 1857µs, render: 10ms)
+ GET / 200 in 29ms (compile: 1920µs, render: 27ms)
+ GET / 200 in 16ms (compile: 3ms, render: 14ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 11ms (compile: 1928µs, render: 9ms)
+ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+ GET / 200 in 18ms (compile: 3ms, render: 14ms)
+ GET / 200 in 20ms (compile: 3ms, render: 17ms)
+ GET / 200 in 11ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 2ms, render: 9ms)
+ GET / 200 in 16ms (compile: 2ms, render: 13ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET / 200 in 22ms (compile: 3ms, render: 19ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 14ms (compile: 3ms, render: 11ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 13ms (compile: 3ms, render: 10ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 20ms (compile: 2ms, render: 18ms)
+ GET / 200 in 12ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 12ms (compile: 1882µs, render: 10ms)
+ GET / 200 in 18ms (compile: 2ms, render: 16ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 11ms (compile: 1977µs, render: 9ms)
+ GET / 200 in 15ms (compile: 2ms, render: 12ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 11ms (compile: 1811µs, render: 9ms)
+ GET / 200 in 12ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 2ms, render: 9ms)
+ GET / 200 in 11ms (compile: 1910µs, render: 9ms)
+ GET / 200 in 11ms (compile: 1757µs, render: 9ms)
+ GET / 200 in 15ms (compile: 3ms, render: 13ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 22ms (compile: 3ms, render: 19ms)
+ GET / 200 in 11ms (compile: 1939µs, render: 9ms)
+ GET / 200 in 12ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 1808µs, render: 10ms)
+ GET / 200 in 12ms (compile: 1804µs, render: 10ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 20ms (compile: 2ms, render: 18ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET / 200 in 20ms (compile: 2ms, render: 18ms)
+ GET / 200 in 17ms (compile: 2ms, render: 15ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 14ms (compile: 4ms, render: 10ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 14ms (compile: 1925µs, render: 12ms)
+ GET / 200 in 13ms (compile: 2ms, render: 10ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 15ms (compile: 3ms, render: 13ms)
+ GET / 200 in 11ms (compile: 1880µs, render: 9ms)
+ GET / 200 in 15ms (compile: 1867µs, render: 13ms)
+ GET / 200 in 21ms (compile: 3ms, render: 18ms)
+ GET / 200 in 12ms (compile: 1775µs, render: 10ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET / 200 in 28ms (compile: 3ms, render: 25ms)
+ GET / 200 in 12ms (compile: 2ms, render: 10ms)
+ GET / 200 in 11ms (compile: 2ms, render: 9ms)
+ GET / 200 in 12ms (compile: 1812µs, render: 11ms)
+ GET / 200 in 11ms (compile: 2ms, render: 8ms)
+ GET / 200 in 10ms (compile: 1692µs, render: 9ms)
+ GET / 200 in 18ms (compile: 1659µs, render: 17ms)
+ GET / 200 in 11ms (compile: 2000µs, render: 9ms)
+✓ Compiled in 179ms
+✓ Compiled in 100ms
+✓ Compiled in 141ms
+✓ Compiled in 104ms
+✓ Compiled in 121ms
+ GET / 200 in 273ms (compile: 49ms, render: 224ms)
+ GET /api/users 200 in 40ms (compile: 29ms, render: 11ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`email`, `main`.`User`.`role`, `main`.`User`.`phone`, `main`.`User`.`licensePlate`, `main`.`User`.`createdAt`, COALESCE(`aggr_selection_0_Trip`.`_aggr_count_trips`, 0) AS `_aggr_count_trips` FROM `main`.`User` LEFT JOIN (SELECT `main`.`Trip`.`driverId`, COUNT(*) AS `_aggr_count_trips` FROM `main`.`Trip` WHERE 1=1 GROUP BY `main`.`Trip`.`driverId`) AS `aggr_selection_0_Trip` ON (`main`.`User`.`id` = `aggr_selection_0_Trip`.`driverId`) WHERE 1=1 ORDER BY `main`.`User`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+ GET /api/trips?status=FINALIZADA 200 in 49ms (compile: 19ms, render: 30ms)
+ GET /api/location 200 in 52ms (compile: 40ms, render: 12ms)
+prisma:query SELECT `main`.`Location`.`id`, `main`.`Location`.`latitude`, `main`.`Location`.`longitude`, `main`.`Location`.`driverId`, `main`.`Location`.`createdAt`, `main`.`Location`.`updatedAt` FROM `main`.`Location` WHERE `main`.`Location`.`updatedAt` >= ? ORDER BY `main`.`Location`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Trip`.`id`, `main`.`Trip`.`origin`, `main`.`Trip`.`destination`, `main`.`Trip`.`distanceKm`, `main`.`Trip`.`fareAmount`, `main`.`Trip`.`status`, `main`.`Trip`.`startedAt`, `main`.`Trip`.`endedAt`, `main`.`Trip`.`driverId`, `main`.`Trip`.`createdAt`, `main`.`Trip`.`updatedAt` FROM `main`.`Trip` WHERE `main`.`Trip`.`status` = ? ORDER BY `main`.`Trip`.`startedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name`, `main`.`User`.`licensePlate` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Settings`.`id`, `main`.`Settings`.`flagRate`, `main`.`Settings`.`pricePerKm`, `main`.`Settings`.`createdAt`, `main`.`Settings`.`updatedAt` FROM `main`.`Settings` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/reports 200 in 31ms (compile: 24ms, render: 6ms)

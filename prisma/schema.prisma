@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(MOTORISTA)
+  phone     String?
+  licensePlate String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trips     Trip[]
+  locations Location[]
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  origin      String
+  destination String
+  distanceKm  Float
+  fareAmount  Float
+  status      Status   @default(EM_ANDAMENTO)
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  driverId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  driver      User     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  latitude  Float
+  longitude Float
+  driverId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  driver    User     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+}
+
+model Settings {
+  id              String @id @default(cuid())
+  flagRate        Float  @default(5.50)
+  pricePerKm      Float  @default(3.20)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Role {
+  ADMINISTRADOR
+  MOTORISTA
+}
+
+enum Status {
+  EM_ANDAMENTO
+  FINALIZADA
+  CANCELADA
+}
