@@ -197,6 +197,14 @@ export default function CoPilotChat() {
 
   // ── Audio Recording → ASR ─────────────────────────
   const startRecording = useCallback(async () => {
+    // Verificar suporte a microfone
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error('Microfone não suportado. Use a digitação para enviar mensagens.', {
+        duration: 5000,
+      });
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream, {
@@ -282,8 +290,47 @@ export default function CoPilotChat() {
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
-    } catch {
-      toast.error('Não foi possível acessar o microfone. Verifique as permissões.');
+    } catch (err: unknown) {
+      const error = err as DOMException;
+      const name = error?.name || '';
+      const msg = error?.message || '';
+
+      if (
+        name === 'NotAllowedError' ||
+        name === 'PermissionDeniedError' ||
+        msg.includes('Permission') ||
+        msg.includes('denied')
+      ) {
+        toast.error(
+          'Permissão de microfone negada. Acesse as configurações do site no Chrome (cadeado 🔒) e permita o microfone.',
+          { duration: 8000 }
+        );
+      } else if (
+        name === 'NotFoundError' ||
+        name === 'DevicesNotFoundError' ||
+        msg.includes('device') ||
+        msg.includes('not found')
+      ) {
+        toast.error(
+          'Nenhum microfone encontrado. Verifique se o dispositivo tem um microfone.',
+          { duration: 6000 }
+        );
+      } else if (
+        name === 'NotReadableError' ||
+        name === 'AbortError' ||
+        msg.includes('secure') ||
+        msg.includes('SSL') ||
+        msg.includes('HTTPS')
+      ) {
+        toast.error(
+          'Microfone requer conexão segura (HTTPS). No Android, abra o app pelo Chrome como "Instalar na tela inicial" para ter HTTPS.',
+          { duration: 8000 }
+        );
+      } else {
+        toast.error(`Erro ao acessar o microfone: ${msg || 'Erro desconhecido'}. Tente digitar.`, {
+          duration: 6000,
+        });
+      }
     }
   }, [messages, speakText]);
 
