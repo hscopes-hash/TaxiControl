@@ -62,6 +62,11 @@ const WELCOME_MSG: ChatMessage = {
   timestamp: new Date(),
 };
 
+// ── Constants ────────────────────────────────────────────
+const ASR_TIMEOUT_MS = 15000; // 15 seconds max for speech recognition
+const TTS_WAKE_DELAY_MS = 150; // delay to "wake up" speechSynthesis on mobile
+const TTS_CHUNK_MAX_CHARS = 200; // max chars per utterance chunk
+
 // ══════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ══════════════════════════════════════════════════════════
@@ -73,23 +78,50 @@ export default function CoPilotChat() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [interimText, setInterimText] = useState('');
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const hasGreeted = useRef(false);
+  const resultReceivedRef = useRef(false);
+  const asrTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const voicesReadyRef = useRef(false);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   // ── Auto-scroll ──────────────────────────────────────
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, interimText]);
 
-  // ── Speak text (Web Speech API) ────────────────────────
+  // ── Preload voices (critical for mobile TTS) ────────
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        voicesRef.current = voices;
+        voicesReadyRef.current = true;
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    // Also try again after a delay (some mobile browsers are slow)
+    const delayedLoad = setTimeout(loadVoices, 1000);
+    return () => {
+      clearTimeout(delayedLoad);
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  // ── Speak text (Web Speech API) with mobile fix ──────
   const speakText = useCallback((text: string) => {
     if (!soundEnabled || typeof window === 'undefined') return;
-    window.speechSynthesis.cancel();
 
     const cleanText = stripEmojis(text
       .replace(/\*\*/g, '')
@@ -101,21 +133,63 @@ export default function CoPilotChat() {
 
     if (!cleanText) return;
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
+    // Cancel any current speech first
+    window.speechSynthesis.cancel();
 
-    const voices = window.speechSynthesis.getVoices();
-    const ptVoice = voices.find((v) => v.lang.startsWith('pt'));
-    if (ptVoice) utterance.voice = ptVoice;
+    // "Wake up" the speech synthesis engine on mobile Chrome
+    // On some mobile browsers, speaking a tiny silent utterance first
+    // prevents the engine from being stuck
+    const wakeUtterance = new SpeechSynthesisUtterance(' ');
+    wakeUtterance.volume = 0;
+    wakeUtterance.rate = 10;
+    window.speechSynthesis.speak(wakeUtterance);
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    // Wait for wake utterance, then speak real text
+    setTimeout(() => {
+      window.speechSynthesis.cancel();
 
-    window.speechSynthesis.speak(utterance);
+      // Get best available voice
+      const voices = voicesRef.current.length > 0
+        ? voicesRef.current
+        : window.speechSynthesis.getVoices();
+
+      const ptVoice = voices.find(v => v.lang === 'pt-BR') ||
+        voices.find(v => v.lang.startsWith('pt')) || null;
+
+      // Split long text into chunks (mobile Chrome bug: speech stops after ~15s)
+      const chunks = splitIntoChunks(cleanText, TTS_CHUNK_MAX_CHARS);
+
+      const speakChunk = (index: number) => {
+        if (index >= chunks.length) {
+          setIsSpeaking(false);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(chunks[index]);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        if (ptVoice) {
+          utterance.voice = ptVoice;
+        }
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => {
+          // Small delay between chunks to prevent mobile Chrome from stopping
+          setTimeout(() => speakChunk(index + 1), 100);
+        };
+        utterance.onerror = (e) => {
+          console.warn('TTS chunk error:', e);
+          setIsSpeaking(false);
+        };
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      speakChunk(0);
+    }, TTS_WAKE_DELAY_MS);
   }, [soundEnabled]);
 
   const stopSpeaking = useCallback(() => {
@@ -123,14 +197,6 @@ export default function CoPilotChat() {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
-  }, []);
-
-  // ── Preload voices ─────────────────────────────────
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
   }, []);
 
   // ── Greeting ─────────────────────────────────────────
@@ -143,144 +209,223 @@ export default function CoPilotChat() {
     }
   }, [speakText]);
 
-  // ── Send message to AI ────────────────────────────
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || isProcessing) return;
-
-    setMessages(prev => [...prev, {
-      id: generateId(), role: 'user', content: text.trim(),
-      timestamp: new Date(), isTranscription: false,
-    }]);
-    setInputText('');
-    setIsProcessing(true);
-    stopSpeaking();
-
+  // ── Shared: send text to AI and get response ────────
+  const queryAI = useCallback(async (
+    text: string,
+    currentMessages: ChatMessage[],
+  ): Promise<string | null> => {
     try {
-      const chatHistory = messages
+      const chatHistory = currentMessages
         .filter(m => m.id !== 'welcome')
         .map(m => ({ role: m.role, content: m.content }));
 
       const res = await fetch('/api/copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text.trim(), history: chatHistory }),
+        body: JSON.stringify({ message: text, history: chatHistory }),
       });
 
       const data = await res.json();
-      const aiResponse = stripEmojis(data.response || 'Desculpe, não consegui processar sua pergunta.');
-      setMessages(prev => [...prev, { id: generateId(), role: 'assistant', content: aiResponse, timestamp: new Date() }]);
+      return stripEmojis(data.response || 'Desculpe, não consegui processar sua pergunta.');
+    } catch (err) {
+      console.error('AI query error:', err);
+      return null;
+    }
+  }, []);
+
+  // ── Send message (text input) ───────────────────────
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isProcessing) return;
+
+    const userMsg: ChatMessage = {
+      id: generateId(), role: 'user', content: text.trim(),
+      timestamp: new Date(), isTranscription: false,
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputText('');
+    setIsProcessing(true);
+    stopSpeaking();
+
+    const aiResponse = await queryAI(text.trim(), messages);
+
+    if (aiResponse) {
+      const assistantMsg: ChatMessage = {
+        id: generateId(), role: 'assistant', content: aiResponse,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
       setTimeout(() => speakText(aiResponse), 300);
-    } catch {
+    } else {
       setMessages(prev => [...prev, {
         id: generateId(), role: 'assistant',
         content: 'Desculpe, ocorreu um erro de conexão. Tente novamente.',
         timestamp: new Date(),
       }]);
-    } finally {
-      setIsProcessing(false);
     }
-  }, [isProcessing, messages, speakText, stopSpeaking]);
+    setIsProcessing(false);
+  }, [isProcessing, messages, speakText, stopSpeaking, queryAI]);
 
-  // ── Close sheet (return to main) ───────────────────
+  // ── Close sheet ─────────────────────────────────────
   const handleClose = useCallback(() => {
     stopSpeaking();
+    clearASRTimeout();
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try { recognitionRef.current.stop(); } catch {}
       recognitionRef.current = null;
     }
     setIsRecording(false);
+    setInterimText('');
     setIsOpen(false);
   }, [stopSpeaking]);
+
+  // ── ASR Timeout management ──────────────────────────
+  const clearASRTimeout = () => {
+    if (asrTimeoutRef.current) {
+      clearTimeout(asrTimeoutRef.current);
+      asrTimeoutRef.current = null;
+    }
+  };
+
+  const setASRTimeout = () => {
+    clearASRTimeout();
+    asrTimeoutRef.current = setTimeout(() => {
+      console.warn('ASR timeout: no result received');
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+        recognitionRef.current = null;
+      }
+      // onend will handle the cleanup
+    }, ASR_TIMEOUT_MS);
+  };
 
   // ── Start voice recognition (Web Speech API) ───────
   const startRecording = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      toast.error('Reconhecimento de voz não suportado neste navegador. Use Chrome ou digite.', { duration: 5000 });
+      toast.error('Reconhecimento de voz não suportado. Use Chrome ou digite sua pergunta.', { duration: 5000 });
       return;
+    }
+
+    // Clean up any previous recognition
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
     }
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
-    recognition.interimResults = false;
+    recognition.interimResults = true; // Enable interim for real-time feedback
     recognition.maxAlternatives = 1;
     recognition.continuous = false;
 
+    resultReceivedRef.current = false;
+    setInterimText('');
+
     recognition.onstart = () => {
+      console.log('ASR started');
       setIsRecording(true);
+      setASRTimeout();
     };
 
     recognition.onresult = async (event: any) => {
-      setIsRecording(false);
-      setIsProcessing(true);
+      clearASRTimeout();
 
-      const transcript = event.results[0]?.[0]?.transcript || '';
+      // Check if this is a final result
+      const lastResultIndex = event.results.length - 1;
+      const result = event.results[lastResultIndex];
 
-      if (!transcript.trim()) {
-        toast.warning('Não consegui entender. Fale mais claro ou digite.', { duration: 3000 });
+      if (result.isFinal) {
+        // Got a final result
+        resultReceivedRef.current = true;
+        setIsRecording(false);
+        setInterimText('');
+
+        const transcript = result[0]?.transcript || '';
+
+        if (!transcript.trim()) {
+          toast.warning('Não consegui entender. Fale mais claro ou digite.', { duration: 3000 });
+          return;
+        }
+
+        console.log('ASR final result:', transcript);
+        setIsProcessing(true);
+
+        // Add user message as transcription
+        const userMsg: ChatMessage = {
+          id: generateId(), role: 'user', content: transcript.trim(),
+          timestamp: new Date(), isTranscription: true,
+        };
+        const newMessages = [...messages, userMsg];
+        setMessages(newMessages);
+
+        // Query AI
+        const aiResponse = await queryAI(transcript.trim(), newMessages);
+
+        if (aiResponse) {
+          const assistantMsg: ChatMessage = {
+            id: generateId(), role: 'assistant', content: aiResponse,
+            timestamp: new Date(),
+          };
+          setMessages(prev => [...prev, assistantMsg]);
+
+          // Speak the response with a longer delay after ASR
+          // (mobile Chrome needs time to release audio input before output)
+          setTimeout(() => speakText(aiResponse), 800);
+        } else {
+          setMessages(prev => [...prev, {
+            id: generateId(), role: 'assistant',
+            content: 'Desculpe, ocorreu um erro de conexão. Tente novamente.',
+            timestamp: new Date(),
+          }]);
+        }
         setIsProcessing(false);
-        return;
-      }
-
-      // Add user message as transcription
-      setMessages(prev => [...prev, {
-        id: generateId(), role: 'user', content: transcript.trim(),
-        timestamp: new Date(), isTranscription: true,
-      }]);
-
-      // Send to AI
-      const chatHistory = messages
-        .filter(m => m.id !== 'welcome')
-        .map(m => ({ role: m.role, content: m.content }));
-
-      try {
-        const aiRes = await fetch('/api/copilot', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: transcript.trim(), history: chatHistory }),
-        });
-
-        const aiData = await aiRes.json();
-        const aiResponse = stripEmojis(aiData.response || 'Desculpe, não consegui processar.');
-
-        setMessages(prev => [...prev, {
-          id: generateId(), role: 'assistant', content: aiResponse, timestamp: new Date(),
-        }]);
-
-        // Speak the response
-        setTimeout(() => speakText(aiResponse), 500);
-      } catch {
-        setMessages(prev => [...prev, {
-          id: generateId(), role: 'assistant',
-          content: 'Desculpe, ocorreu um erro de conexão. Tente novamente.',
-          timestamp: new Date(),
-        }]);
-      } finally {
-        setIsProcessing(false);
+      } else {
+        // Interim result - show real-time feedback
+        const interim = result[0]?.transcript || '';
+        setInterimText(interim);
+        // Reset timeout on each interim result (user is still speaking)
+        setASRTimeout();
       }
     };
 
     recognition.onerror = (event: any) => {
+      clearASRTimeout();
       setIsRecording(false);
+      setInterimText('');
+      recognitionRef.current = null;
+
       const errorType = event.error || '';
+      console.warn('ASR error:', errorType);
 
       if (errorType === 'not-allowed' || errorType === 'service-not-allowed') {
-        toast.error('Permissão de microfone negada. Toque no cadeado no Chrome e permita o microfone.', { duration: 8000 });
+        toast.error('Permissão de microfone negada. Toque no cadeado (🔒) na barra de endereço e permita o microfone para este site.', { duration: 8000 });
       } else if (errorType === 'no-speech') {
-        toast.warning('Nenhuma fala detectada. Tente novamente.', { duration: 3000 });
+        toast.warning('Nenhuma fala detectada. Fale mais próximo do microfone e tente novamente.', { duration: 4000 });
       } else if (errorType === 'audio-capture') {
-        toast.error('Nenhum microfone encontrado.', { duration: 5000 });
+        toast.error('Nenhum microfone encontrado. Verifique se o dispositivo tem microfone.', { duration: 5000 });
       } else if (errorType === 'network') {
-        toast.error('Erro de rede no reconhecimento de voz. Verifique sua conexão.', { duration: 5000 });
+        toast.error('Erro de rede no reconhecimento de voz. Verifique sua conexão com a internet.', { duration: 5000 });
+      } else if (errorType === 'aborted') {
+        // User manually stopped, no need to show error
       } else {
-        toast.error(`Erro ao reconhecer fala: ${errorType || 'desconhecido'}`, { duration: 5000 });
+        toast.error(`Erro de voz: ${errorType || 'desconhecido'}. Tente novamente.`, { duration: 5000 });
       }
     };
 
     recognition.onend = () => {
+      clearASRTimeout();
       setIsRecording(false);
+      setInterimText('');
       recognitionRef.current = null;
+
+      // If recognition ended without any result and no error was shown
+      if (!resultReceivedRef.current && !isProcessing) {
+        console.warn('ASR ended without result');
+        // Don't show toast if an error already handled it (onerror would have fired)
+        // The 'aborted' error case is handled in onerror with no toast
+      }
     };
 
     recognitionRef.current = recognition;
@@ -288,27 +433,31 @@ export default function CoPilotChat() {
     try {
       recognition.start();
     } catch (err: any) {
+      console.error('ASR start error:', err);
       setIsRecording(false);
-      toast.error('Erro ao iniciar reconhecimento de voz. Tente novamente.', { duration: 5000 });
+      toast.error('Erro ao iniciar microfone. Reinicie o navegador e tente novamente.', { duration: 5000 });
     }
-  }, [messages, speakText]);
+  }, [messages, speakText, queryAI, isProcessing]);
 
   const stopRecording = useCallback(() => {
+    clearASRTimeout();
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try { recognitionRef.current.stop(); } catch {}
       recognitionRef.current = null;
     }
     setIsRecording(false);
+    setInterimText('');
   }, []);
 
   const toggleRecording = useCallback(() => {
+    if (isProcessing) return;
     if (isRecording) {
       stopRecording();
     } else {
       stopSpeaking();
       startRecording();
     }
-  }, [isRecording, stopRecording, startRecording, stopSpeaking]);
+  }, [isRecording, isProcessing, stopRecording, startRecording, stopSpeaking]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -318,12 +467,13 @@ export default function CoPilotChat() {
   // ── Cleanup ─────────────────────────────────────────
   useEffect(() => {
     return () => {
+      if (asrTimeoutRef.current) clearTimeout(asrTimeoutRef.current);
       window.speechSynthesis?.cancel();
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.stop(); } catch {}
       }
     };
-  }, []);
+  }, [clearASRTimeout]);
 
   // ── Render ────────────────────────────────────────
   return (
@@ -379,7 +529,11 @@ export default function CoPilotChat() {
                 </Button>
                 <Button
                   variant="ghost" size="icon"
-                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  onClick={() => {
+                    setSoundEnabled(prev => !prev);
+                    if (!soundEnabled) stopSpeaking();
+                    else stopSpeaking();
+                  }}
                   className="h-8 w-8 text-white hover:bg-white/20"
                   aria-label={soundEnabled ? 'Desativar voz' : 'Ativar voz'}
                 >
@@ -417,6 +571,28 @@ export default function CoPilotChat() {
               </motion.div>
             ))}
 
+            {/* Interim text (real-time speech feedback) */}
+            {interimText && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 0.7, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mb-4 flex gap-2.5 flex-row-reverse"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-700 text-white">
+                  <User className="h-4 w-4" />
+                </div>
+                <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-amber-400/60 px-3.5 py-2.5 text-sm text-white italic">
+                  <div className="flex items-center gap-1 mb-1 opacity-75">
+                    <Mic className="h-3 w-3" />
+                    <span className="text-[10px] font-medium uppercase tracking-wider">Ouvindo...</span>
+                  </div>
+                  <p>{interimText}</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Processing indicator */}
             {isProcessing && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white">
@@ -429,7 +605,7 @@ export default function CoPilotChat() {
                         <motion.div key={i} animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }} className="h-2 w-2 rounded-full bg-amber-400" />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-400">{isRecording ? 'Ouvindo...' : 'Pensando...'}</span>
+                    <span className="text-xs text-gray-400">Pensando...</span>
                   </div>
                 </div>
               </motion.div>
@@ -454,13 +630,28 @@ export default function CoPilotChat() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Digite sua pergunta..."
-                disabled={isProcessing}
+                disabled={isProcessing || isRecording}
                 className="h-10 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:opacity-50"
               />
-              <motion.button type="button" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleRecording} disabled={isProcessing && !isRecording} className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${isRecording ? 'bg-red-500 text-white shadow-lg shadow-red-500/25' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/25 hover:bg-amber-600'} disabled:opacity-50`} aria-label={isRecording ? 'Parar gravação' : 'Iniciar gravação'}>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleRecording}
+                disabled={isProcessing && !isRecording}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${isRecording ? 'bg-red-500 text-white shadow-lg shadow-red-500/25' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/25 hover:bg-amber-600'} disabled:opacity-50`}
+                aria-label={isRecording ? 'Parar gravação' : 'Iniciar gravação'}
+              >
                 {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
               </motion.button>
-              <motion.button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={!inputText.trim() || isProcessing} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-lg disabled:opacity-40" aria-label="Enviar mensagem">
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={!inputText.trim() || isProcessing || isRecording}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-lg disabled:opacity-40"
+                aria-label="Enviar mensagem"
+              >
                 <Send className="h-4 w-4" />
               </motion.button>
             </form>
@@ -473,4 +664,38 @@ export default function CoPilotChat() {
       </Sheet>
     </>
   );
+}
+
+// ── Helper: Split text into chunks for TTS ───────────────
+function splitIntoChunks(text: string, maxChars: number): string[] {
+  // First try to split by sentences
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const chunks: string[] = [];
+  let current = '';
+
+  for (const sentence of sentences) {
+    if ((current + ' ' + sentence).trim().length <= maxChars) {
+      current = (current + ' ' + sentence).trim();
+    } else {
+      if (current) chunks.push(current);
+      // If a single sentence is too long, split it by commas
+      if (sentence.length > maxChars) {
+        const parts = sentence.split(/(?<=,)\s*/);
+        let subCurrent = '';
+        for (const part of parts) {
+          if ((subCurrent + ' ' + part).trim().length <= maxChars) {
+            subCurrent = (subCurrent + ' ' + part).trim();
+          } else {
+            if (subCurrent) chunks.push(subCurrent);
+            subCurrent = part;
+          }
+        }
+        current = subCurrent;
+      } else {
+        current = sentence;
+      }
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks.length > 0 ? chunks : [text];
 }
