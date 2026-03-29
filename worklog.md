@@ -58,3 +58,26 @@ Stage Summary:
 - Full voice pipeline: Mic → ASR → LLM → TTS → Speaker
 - Available in both Driver and Admin panels
 - Zero lint errors, zero build errors
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add back icon to Co-Pilot + Fix ASR reliability + Fix TTS after voice
+
+Work Log:
+- Added ArrowLeft icon button to CoPilot chat header (between title and sound toggle)
+- Clicking the back icon closes the sheet, stops speech synthesis, and stops any active recognition
+- Replaced entire ASR system: removed MediaRecorder + backend /api/copilot/transcribe (z-ai-web-dev-sdk)
+- Switched to browser-native Web Speech API (SpeechRecognition) for speech-to-text
+- New ASR flow: Click mic → browser SpeechRecognition starts → onresult gets transcript → sends to /api/copilot → speaks response with TTS
+- Fixed TTS not playing after voice input: previously the processAudio flow had a separate code path that missed speakText call; now unified with sendMessage pattern
+- Added proper cleanup in handleClose and useEffect cleanup (stop recognition on unmount)
+- Better error messages for SpeechRecognition errors (not-allowed, no-speech, audio-capture, network)
+- Updated version to v1.2.0.8
+- All linting passed with zero errors
+
+Stage Summary:
+- CoPilot now has a back arrow icon in header to return to main screen
+- ASR reliability dramatically improved by using browser-native Speech API instead of server-side SDK
+- TTS now plays correctly after both text and voice input
+- Voice flow is now entirely client-side (ASR + TTS), only the AI chat goes to server
