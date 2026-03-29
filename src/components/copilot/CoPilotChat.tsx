@@ -416,9 +416,17 @@ export default function CoPilotChat() {
     if (isRecording) {
       stopRecording();
     } else {
-      // Não chamar stopSpeaking aqui! No Chrome mobile,
-      // speechSynthesis.cancel() interfere com o ASR
-      startRecording();
+      // Parar o áudio que estiver tocando e aguardar
+      // para o Chrome mobile liberar o canal de áudio
+      setIsSpeaking(false);
+      if (ttsTimeoutRef.current) {
+        clearTimeout(ttsTimeoutRef.current);
+        ttsTimeoutRef.current = null;
+      }
+      if (typeof window !== 'undefined') {
+        window.speechSynthesis.cancel();
+      }
+      setTimeout(() => startRecording(), 300);
     }
   }, [isRecording, isProcessing, stopRecording, startRecording]);
 
