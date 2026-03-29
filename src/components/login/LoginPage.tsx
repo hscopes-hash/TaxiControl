@@ -145,6 +145,9 @@ export default function LoginPage() {
             <p className="mt-1 text-sm text-gray-400">
               Gestão inteligente de frota
             </p>
+            <span className="mt-1 inline-block text-[11px] font-mono text-gray-600">
+              v{VERSION}
+            </span>
           </div>
         </motion.div>
 
@@ -318,7 +321,8 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="mt-6 text-center text-xs text-gray-600"
         >
-          &copy; {new Date().getFullYear()} TaxiControl Pro &middot; v{VERSION}
+          &copy; {new Date().getFullYear()} TaxiControl Pro &middot; Todos os direitos
+          reservados
         </motion.p>
       </motion.div>
     </div>
