@@ -12,7 +12,7 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  ArrowLeft,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 
-// ── Types ────────────────────────────────────────────────
+// ── Tipos ────────────────────────────────────────────────
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -31,7 +31,7 @@ interface ChatMessage {
   isTranscription?: boolean;
 }
 
-// ── Utility ──────────────────────────────────────────────
+// ── Utilitários ──────────────────────────────────────────
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
@@ -54,7 +54,7 @@ function stripEmojis(text: string): string {
     .trim();
 }
 
-// ── WELCOME MESSAGE ──────────────────────────────────────
+// ── Mensagem de boas-vindas ─────────────────────────────
 const WELCOME_MSG: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
@@ -62,13 +62,11 @@ const WELCOME_MSG: ChatMessage = {
   timestamp: new Date(),
 };
 
-// ── Constants ────────────────────────────────────────────
-const ASR_TIMEOUT_MS = 15000; // 15 seconds max for speech recognition
-const TTS_WAKE_DELAY_MS = 150; // delay to "wake up" speechSynthesis on mobile
-const TTS_CHUNK_MAX_CHARS = 200; // max chars per utterance chunk
+// ── Constantes ────────────────────────────────────────────
+const ASR_TIMEOUT_MS = 15000;
 
 // ══════════════════════════════════════════════════════════
-// MAIN COMPONENT
+// COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════════════════════
 export default function CoPilotChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,8 +84,8 @@ export default function CoPilotChat() {
   const hasGreeted = useRef(false);
   const resultReceivedRef = useRef(false);
   const asrTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const voicesReadyRef = useRef(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const ttsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // ── Auto-scroll ──────────────────────────────────────
   useEffect(() => {
@@ -96,7 +94,7 @@ export default function CoPilotChat() {
     }
   }, [messages, interimText]);
 
-  // ── Preload voices (critical for mobile TTS) ────────
+  // ── Carregar vozes ──────────────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -104,22 +102,19 @@ export default function CoPilotChat() {
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0) {
         voicesRef.current = voices;
-        voicesReadyRef.current = true;
       }
     };
 
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-
-    // Also try again after a delay (some mobile browsers are slow)
-    const delayedLoad = setTimeout(loadVoices, 1000);
+    const delayedLoad = setTimeout(loadVoices, 500);
     return () => {
       clearTimeout(delayedLoad);
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, []);
 
-  // ── Speak text (Web Speech API) with mobile fix ──────
+  // ── Falar texto (Web Speech API) ────────────────────
   const speakText = useCallback((text: string) => {
     if (!soundEnabled || typeof window === 'undefined') return;
 
@@ -133,83 +128,62 @@ export default function CoPilotChat() {
 
     if (!cleanText) return;
 
-    // Cancel any current speech first
+    // Limpar timer anterior
+    if (ttsTimeoutRef.current) clearTimeout(ttsTimeoutRef.current);
+
+    // Cancelar fala anterior
     window.speechSynthesis.cancel();
 
-    // "Wake up" the speech synthesis engine on mobile Chrome
-    // On some mobile browsers, speaking a tiny silent utterance first
-    // prevents the engine from being stuck
-    const wakeUtterance = new SpeechSynthesisUtterance(' ');
-    wakeUtterance.volume = 0;
-    wakeUtterance.rate = 10;
-    window.speechSynthesis.speak(wakeUtterance);
+    // Obter melhor voz disponível
+    const voices = voicesRef.current.length > 0
+      ? voicesRef.current
+      : window.speechSynthesis.getVoices();
 
-    // Wait for wake utterance, then speak real text
-    setTimeout(() => {
-      window.speechSynthesis.cancel();
+    const ptVoice = voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang.startsWith('pt')) || null;
 
-      // Get best available voice
-      const voices = voicesRef.current.length > 0
-        ? voicesRef.current
-        : window.speechSynthesis.getVoices();
+    // Falar com delay para o Chrome mobile não ignorar
+    ttsTimeoutRef.current = setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
 
-      const ptVoice = voices.find(v => v.lang === 'pt-BR') ||
-        voices.find(v => v.lang.startsWith('pt')) || null;
+      if (ptVoice) {
+        utterance.voice = ptVoice;
+      }
 
-      // Split long text into chunks (mobile Chrome bug: speech stops after ~15s)
-      const chunks = splitIntoChunks(cleanText, TTS_CHUNK_MAX_CHARS);
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
 
-      const speakChunk = (index: number) => {
-        if (index >= chunks.length) {
-          setIsSpeaking(false);
-          return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(chunks[index]);
-        utterance.lang = 'pt-BR';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        if (ptVoice) {
-          utterance.voice = ptVoice;
-        }
-
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => {
-          // Small delay between chunks to prevent mobile Chrome from stopping
-          setTimeout(() => speakChunk(index + 1), 100);
-        };
-        utterance.onerror = (e) => {
-          console.warn('TTS chunk error:', e);
-          setIsSpeaking(false);
-        };
-
-        window.speechSynthesis.speak(utterance);
-      };
-
-      speakChunk(0);
-    }, TTS_WAKE_DELAY_MS);
+      window.speechSynthesis.speak(utterance);
+    }, 200);
   }, [soundEnabled]);
 
   const stopSpeaking = useCallback(() => {
+    if (ttsTimeoutRef.current) {
+      clearTimeout(ttsTimeoutRef.current);
+      ttsTimeoutRef.current = null;
+    }
     if (typeof window !== 'undefined') {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
   }, []);
 
-  // ── Greeting ─────────────────────────────────────────
+  // ── Saudação ────────────────────────────────────────
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     if (!hasGreeted.current) {
       hasGreeted.current = true;
       setMessages([WELCOME_MSG]);
-      setTimeout(() => speakText(WELCOME_MSG.content), 800);
+      setTimeout(() => speakText(WELCOME_MSG.content), 1000);
     }
   }, [speakText]);
 
-  // ── Shared: send text to AI and get response ────────
+  // ── Consultar IA ────────────────────────────────────
   const queryAI = useCallback(async (
     text: string,
     currentMessages: ChatMessage[],
@@ -228,12 +202,12 @@ export default function CoPilotChat() {
       const data = await res.json();
       return stripEmojis(data.response || 'Desculpe, não consegui processar sua pergunta.');
     } catch (err) {
-      console.error('AI query error:', err);
+      console.error('Erro ao consultar IA:', err);
       return null;
     }
   }, []);
 
-  // ── Send message (text input) ───────────────────────
+  // ── Enviar mensagem (texto) ─────────────────────────
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isProcessing) return;
 
@@ -255,7 +229,7 @@ export default function CoPilotChat() {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, assistantMsg]);
-      setTimeout(() => speakText(aiResponse), 300);
+      setTimeout(() => speakText(aiResponse), 400);
     } else {
       setMessages(prev => [...prev, {
         id: generateId(), role: 'assistant',
@@ -266,7 +240,7 @@ export default function CoPilotChat() {
     setIsProcessing(false);
   }, [isProcessing, messages, speakText, stopSpeaking, queryAI]);
 
-  // ── Close sheet ─────────────────────────────────────
+  // ── Fechar painel ───────────────────────────────────
   const handleClose = useCallback(() => {
     stopSpeaking();
     clearASRTimeout();
@@ -279,7 +253,7 @@ export default function CoPilotChat() {
     setIsOpen(false);
   }, [stopSpeaking]);
 
-  // ── ASR Timeout management ──────────────────────────
+  // ── Timeout do ASR ──────────────────────────────────
   const clearASRTimeout = () => {
     if (asrTimeoutRef.current) {
       clearTimeout(asrTimeoutRef.current);
@@ -290,25 +264,24 @@ export default function CoPilotChat() {
   const setASRTimeout = () => {
     clearASRTimeout();
     asrTimeoutRef.current = setTimeout(() => {
-      console.warn('ASR timeout: no result received');
+      console.warn('ASR timeout');
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
         recognitionRef.current = null;
       }
-      // onend will handle the cleanup
     }, ASR_TIMEOUT_MS);
   };
 
-  // ── Start voice recognition (Web Speech API) ───────
+  // ── Iniciar reconhecimento de voz ───────────────────
   const startRecording = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      toast.error('Reconhecimento de voz não suportado. Use Chrome ou digite sua pergunta.', { duration: 5000 });
+      toast.error('Reconhecimento de voz não suportado. Use Chrome ou digite.', { duration: 5000 });
       return;
     }
 
-    // Clean up any previous recognition
+    // Limpar reconhecimento anterior
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch {}
       recognitionRef.current = null;
@@ -316,7 +289,7 @@ export default function CoPilotChat() {
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
-    recognition.interimResults = true; // Enable interim for real-time feedback
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognition.continuous = false;
 
@@ -324,7 +297,7 @@ export default function CoPilotChat() {
     setInterimText('');
 
     recognition.onstart = () => {
-      console.log('ASR started');
+      console.log('ASR iniciado');
       setIsRecording(true);
       setASRTimeout();
     };
@@ -332,12 +305,10 @@ export default function CoPilotChat() {
     recognition.onresult = async (event: any) => {
       clearASRTimeout();
 
-      // Check if this is a final result
       const lastResultIndex = event.results.length - 1;
       const result = event.results[lastResultIndex];
 
       if (result.isFinal) {
-        // Got a final result
         resultReceivedRef.current = true;
         setIsRecording(false);
         setInterimText('');
@@ -349,10 +320,9 @@ export default function CoPilotChat() {
           return;
         }
 
-        console.log('ASR final result:', transcript);
+        console.log('ASR resultado:', transcript);
         setIsProcessing(true);
 
-        // Add user message as transcription
         const userMsg: ChatMessage = {
           id: generateId(), role: 'user', content: transcript.trim(),
           timestamp: new Date(), isTranscription: true,
@@ -360,7 +330,9 @@ export default function CoPilotChat() {
         const newMessages = [...messages, userMsg];
         setMessages(newMessages);
 
-        // Query AI
+        // Parar qualquer fala antes de consultar a IA
+        stopSpeaking();
+
         const aiResponse = await queryAI(transcript.trim(), newMessages);
 
         if (aiResponse) {
@@ -369,10 +341,8 @@ export default function CoPilotChat() {
             timestamp: new Date(),
           };
           setMessages(prev => [...prev, assistantMsg]);
-
-          // Speak the response with a longer delay after ASR
-          // (mobile Chrome needs time to release audio input before output)
-          setTimeout(() => speakText(aiResponse), 800);
+          // Delay maior após ASR para o Chrome mobile liberar o áudio
+          setTimeout(() => speakText(aiResponse), 1000);
         } else {
           setMessages(prev => [...prev, {
             id: generateId(), role: 'assistant',
@@ -382,10 +352,9 @@ export default function CoPilotChat() {
         }
         setIsProcessing(false);
       } else {
-        // Interim result - show real-time feedback
+        // Resultado provisório - mostrar em tempo real
         const interim = result[0]?.transcript || '';
         setInterimText(interim);
-        // Reset timeout on each interim result (user is still speaking)
         setASRTimeout();
       }
     };
@@ -397,20 +366,20 @@ export default function CoPilotChat() {
       recognitionRef.current = null;
 
       const errorType = event.error || '';
-      console.warn('ASR error:', errorType);
+      console.warn('ASR erro:', errorType);
 
       if (errorType === 'not-allowed' || errorType === 'service-not-allowed') {
-        toast.error('Permissão de microfone negada. Toque no cadeado (🔒) na barra de endereço e permita o microfone para este site.', { duration: 8000 });
+        toast.error('Permissão de microfone negada. Toque no cadeado na barra de endereço e permita o microfone para este site.', { duration: 8000 });
       } else if (errorType === 'no-speech') {
-        toast.warning('Nenhuma fala detectada. Fale mais próximo do microfone e tente novamente.', { duration: 4000 });
+        toast.warning('Nenhuma fala detectada. Fale mais próximo do microfone.', { duration: 4000 });
       } else if (errorType === 'audio-capture') {
-        toast.error('Nenhum microfone encontrado. Verifique se o dispositivo tem microfone.', { duration: 5000 });
+        toast.error('Nenhum microfone encontrado no dispositivo.', { duration: 5000 });
       } else if (errorType === 'network') {
-        toast.error('Erro de rede no reconhecimento de voz. Verifique sua conexão com a internet.', { duration: 5000 });
+        toast.error('Erro de rede no reconhecimento de voz. Verifique sua conexão.', { duration: 5000 });
       } else if (errorType === 'aborted') {
-        // User manually stopped, no need to show error
+        // Interrompido pelo usuário, sem erro
       } else {
-        toast.error(`Erro de voz: ${errorType || 'desconhecido'}. Tente novamente.`, { duration: 5000 });
+        toast.error(`Erro de voz: ${errorType || 'desconhecido'}`, { duration: 5000 });
       }
     };
 
@@ -419,13 +388,6 @@ export default function CoPilotChat() {
       setIsRecording(false);
       setInterimText('');
       recognitionRef.current = null;
-
-      // If recognition ended without any result and no error was shown
-      if (!resultReceivedRef.current && !isProcessing) {
-        console.warn('ASR ended without result');
-        // Don't show toast if an error already handled it (onerror would have fired)
-        // The 'aborted' error case is handled in onerror with no toast
-      }
     };
 
     recognitionRef.current = recognition;
@@ -433,11 +395,11 @@ export default function CoPilotChat() {
     try {
       recognition.start();
     } catch (err: any) {
-      console.error('ASR start error:', err);
+      console.error('ASR erro ao iniciar:', err);
       setIsRecording(false);
-      toast.error('Erro ao iniciar microfone. Reinicie o navegador e tente novamente.', { duration: 5000 });
+      toast.error('Erro ao iniciar microfone. Tente novamente.', { duration: 5000 });
     }
-  }, [messages, speakText, queryAI, isProcessing]);
+  }, [messages, speakText, queryAI, isProcessing, stopSpeaking]);
 
   const stopRecording = useCallback(() => {
     clearASRTimeout();
@@ -454,31 +416,33 @@ export default function CoPilotChat() {
     if (isRecording) {
       stopRecording();
     } else {
-      stopSpeaking();
+      // Não chamar stopSpeaking aqui! No Chrome mobile,
+      // speechSynthesis.cancel() interfere com o ASR
       startRecording();
     }
-  }, [isRecording, isProcessing, stopRecording, startRecording, stopSpeaking]);
+  }, [isRecording, isProcessing, stopRecording, startRecording]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(inputText);
   };
 
-  // ── Cleanup ─────────────────────────────────────────
+  // ── Limpeza ─────────────────────────────────────────
   useEffect(() => {
     return () => {
       if (asrTimeoutRef.current) clearTimeout(asrTimeoutRef.current);
+      if (ttsTimeoutRef.current) clearTimeout(ttsTimeoutRef.current);
       window.speechSynthesis?.cancel();
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
     };
-  }, [clearASRTimeout]);
+  }, []);
 
-  // ── Render ────────────────────────────────────────
+  // ── Renderizar ──────────────────────────────────────
   return (
     <>
-      {/* Floating Mic Button */}
+      {/* Botão flutuante do microfone */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -503,10 +467,10 @@ export default function CoPilotChat() {
         )}
       </AnimatePresence>
 
-      {/* Chat Sheet */}
+      {/* Painel de chat */}
       <Sheet open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); else setIsOpen(true); }}>
         <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-          {/* Header */}
+          {/* Cabeçalho */}
           <SheetHeader className="border-b bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -515,35 +479,38 @@ export default function CoPilotChat() {
                 </div>
                 <div>
                   <SheetTitle className="text-left text-base font-bold text-white">Co-Piloto IA</SheetTitle>
-                  <p className="text-xs text-amber-100/80">Assistente inteligente do TaxiControl</p>
+                  <p className="text-xs text-amber-100/80">Assistente do TaxiControl</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 <Button
-                  variant="ghost" size="icon"
-                  onClick={handleClose}
-                  className="h-8 w-8 text-white hover:bg-white/20"
-                  aria-label="Voltar para tela principal"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost" size="icon"
+                  type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => {
                     setSoundEnabled(prev => !prev);
-                    if (!soundEnabled) stopSpeaking();
-                    else stopSpeaking();
+                    if (soundEnabled) stopSpeaking();
                   }}
-                  className="h-8 w-8 text-white hover:bg-white/20"
+                  className="h-9 w-9 text-white hover:bg-white/20"
                   aria-label={soundEnabled ? 'Desativar voz' : 'Ativar voz'}
                 >
                   {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClose}
+                  className="h-9 w-9 text-white hover:bg-white/20"
+                  aria-label="Fechar"
+                >
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </SheetHeader>
 
-          {/* Messages */}
+          {/* Mensagens */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto bg-gray-50 px-4 py-4">
             {messages.map((msg) => (
               <motion.div
@@ -560,7 +527,7 @@ export default function CoPilotChat() {
                   {msg.role === 'user' && msg.isTranscription && (
                     <div className="mb-1 flex items-center gap-1 opacity-75">
                       <Mic className="h-3 w-3" />
-                      <span className="text-[10px] font-medium uppercase tracking-wider">Mensagem de voz</span>
+                      <span className="text-[10px] font-medium uppercase tracking-wider">Voz</span>
                     </div>
                   )}
                   <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -571,7 +538,7 @@ export default function CoPilotChat() {
               </motion.div>
             ))}
 
-            {/* Interim text (real-time speech feedback) */}
+            {/* Texto provisório (feedback em tempo real) */}
             {interimText && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -592,7 +559,7 @@ export default function CoPilotChat() {
               </motion.div>
             )}
 
-            {/* Processing indicator */}
+            {/* Indicador de processamento */}
             {isProcessing && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white">
@@ -612,7 +579,7 @@ export default function CoPilotChat() {
             )}
           </div>
 
-          {/* Input */}
+          {/* Entrada */}
           <div className="border-t bg-white px-3 py-3">
             {isRecording && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-2 flex items-center justify-center gap-2">
@@ -657,45 +624,11 @@ export default function CoPilotChat() {
             </form>
 
             <p className="mt-1.5 text-center text-[10px] text-gray-400">
-              Clique no microfone para falar por voz ou digite sua pergunta
+              Clique no microfone para falar ou digite sua pergunta
             </p>
           </div>
         </SheetContent>
       </Sheet>
     </>
   );
-}
-
-// ── Helper: Split text into chunks for TTS ───────────────
-function splitIntoChunks(text: string, maxChars: number): string[] {
-  // First try to split by sentences
-  const sentences = text.split(/(?<=[.!?])\s+/);
-  const chunks: string[] = [];
-  let current = '';
-
-  for (const sentence of sentences) {
-    if ((current + ' ' + sentence).trim().length <= maxChars) {
-      current = (current + ' ' + sentence).trim();
-    } else {
-      if (current) chunks.push(current);
-      // If a single sentence is too long, split it by commas
-      if (sentence.length > maxChars) {
-        const parts = sentence.split(/(?<=,)\s*/);
-        let subCurrent = '';
-        for (const part of parts) {
-          if ((subCurrent + ' ' + part).trim().length <= maxChars) {
-            subCurrent = (subCurrent + ' ' + part).trim();
-          } else {
-            if (subCurrent) chunks.push(subCurrent);
-            subCurrent = part;
-          }
-        }
-        current = subCurrent;
-      } else {
-        current = sentence;
-      }
-    }
-  }
-  if (current) chunks.push(current);
-  return chunks.length > 0 ? chunks : [text];
 }
