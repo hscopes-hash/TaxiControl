@@ -66,6 +66,7 @@ interface TripDetail {
   distanceKm: number;
   fareAmount: number;
   startedAt: string;
+  endedAt?: string;
   driver: {
     id: string;
     name: string;
@@ -231,6 +232,8 @@ export default function Reports() {
       'Distância (km)',
       'Valor (R$)',
       'Data',
+      'Partida',
+      'Chegada',
     ];
     const rows = trips.map((t) => [
       t.driver?.name || '',
@@ -240,6 +243,8 @@ export default function Reports() {
       t.distanceKm.toFixed(2),
       t.fareAmount.toFixed(2),
       new Date(t.startedAt).toLocaleString('pt-BR'),
+      t.startedAt ? new Date(t.startedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+      t.endedAt ? new Date(t.endedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
     ]);
 
     const csv = [
@@ -491,6 +496,8 @@ export default function Reports() {
                         <TableHeader>
                           <TableRow className="bg-muted/50 hover:bg-muted/50">
                             <TableHead>Data</TableHead>
+                            <TableHead>Partida</TableHead>
+                            <TableHead>Chegada</TableHead>
                             <TableHead>Motorista</TableHead>
                             <TableHead className="hidden sm:table-cell">
                               Origem
@@ -509,7 +516,13 @@ export default function Reports() {
                               className="hover:bg-muted/30"
                             >
                               <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                                {formatDate(trip.startedAt)}
+                                {formatDate(trip.startedAt).split(',')[0] || formatDate(trip.startedAt)}
+                              </TableCell>
+                              <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                                {trip.startedAt ? new Date(trip.startedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                              </TableCell>
+                              <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                                {trip.endedAt ? new Date(trip.endedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
                               </TableCell>
                               <TableCell>
                                 <div>

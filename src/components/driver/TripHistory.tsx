@@ -69,6 +69,16 @@ function formatDateTime(iso: string): string {
   });
 }
 
+function formatTimeOnly(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 export default function TripHistory() {
   const { user } = useAuthStore();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -235,10 +245,18 @@ export default function TripHistory() {
                       {getStatusBadge(trip.status)}
                     </div>
 
-                    {/* Date */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
-                      <Calendar className="size-3" />
-                      <span>{formatDateTime(trip.startedAt)}</span>
+                    {/* Departure / Arrival */}
+                    <div className="flex items-center gap-4 text-[11px] text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="size-3" />
+                        <span>Partida: {formatTimeOnly(trip.startedAt)}</span>
+                      </div>
+                      {trip.endedAt && (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="size-3" />
+                          <span>Chegada: {formatTimeOnly(trip.endedAt)}</span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

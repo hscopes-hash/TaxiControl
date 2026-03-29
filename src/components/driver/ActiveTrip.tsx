@@ -329,7 +329,7 @@ export default function ActiveTrip() {
               </Badge>
             </div>
             <p className="text-xs text-gray-400">
-              Início: {formatDateTime(currentTrip.startedAt)}
+              Partida: {formatDateTime(currentTrip.startedAt)}
             </p>
           </div>
         </CardContent>
@@ -420,14 +420,14 @@ export default function ActiveTrip() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Início</span>
+                  <span className="text-gray-500">Partida</span>
                   <span className="font-medium text-gray-900">
                     {formatDateTime(finalizedTrip.startedAt)}
                   </span>
                 </div>
                 {finalizedTrip.endedAt && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Fim</span>
+                    <span className="text-gray-500">Chegada</span>
                     <span className="font-medium text-gray-900">
                       {formatDateTime(finalizedTrip.endedAt)}
                     </span>
@@ -495,12 +495,12 @@ export default function ActiveTrip() {
                 <span className="font-medium">{finalizedTrip.distanceKm.toFixed(1)} km</span>
               </div>
               <div className="flex justify-between border-b pb-1">
-                <span>Início</span>
+                <span>Partida</span>
                 <span className="font-medium">{formatDateTime(finalizedTrip.startedAt)}</span>
               </div>
               {finalizedTrip.endedAt && (
                 <div className="flex justify-between border-b pb-1">
-                  <span>Fim</span>
+                  <span>Chegada</span>
                   <span className="font-medium">{formatDateTime(finalizedTrip.endedAt)}</span>
                 </div>
               )}

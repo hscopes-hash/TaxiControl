@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import CoPilotChat from '@/components/copilot/CoPilotChat';
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'dashboard', label: 'Painel', icon: LayoutDashboard },
   { id: 'new', label: 'Nova Corrida', icon: PlusCircle },
   { id: 'active', label: 'Corrida Ativa', icon: Navigation },
   { id: 'history', label: 'Histórico', icon: History },

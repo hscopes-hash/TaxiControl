@@ -91,6 +91,7 @@ interface CompletedTrip {
   distanceKm: number;
   fareAmount: number;
   startedAt: string;
+  endedAt?: string;
   driver?: {
     id: string;
     name: string;
@@ -143,7 +144,7 @@ export default function AdminDashboard() {
         const lastTrips = (tripsData.trips || []).slice(0, 5) as CompletedTrip[];
         setRecentTrips(lastTrips);
       } catch (error) {
-        console.error('Failed to load dashboard data:', error);
+        console.error('Erro ao carregar dados do painel:', error);
       } finally {
         setLoading(false);
       }
@@ -286,6 +287,14 @@ export default function AdminDashboard() {
                       <p className="text-xs text-muted-foreground">
                         {trip.distanceKm.toFixed(1)} km
                       </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Partida: {trip.startedAt ? new Date(trip.startedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </p>
+                      {trip.endedAt && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Chegada: {new Date(trip.endedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
                     </div>
                   </motion.div>
                 ))}
