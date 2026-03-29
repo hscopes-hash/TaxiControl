@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -11,7 +11,6 @@ import {
   User,
 } from 'lucide-react';
 import { useAuthStore, useNavStore, useTripStore } from '@/lib/store';
-import type { User as UserType, Trip, AppSettings } from '@/lib/store';
 import { VERSION } from '@/lib/version';
 
 import DriverDashboard from './DriverDashboard';
@@ -30,11 +29,63 @@ const tabs = [
   { id: 'history', label: 'Histórico', icon: History },
 ] as const;
 
+const LOCATION_INTERVAL_MS = 15000;
+
 export default function DriverLayout() {
   const { user, logout } = useAuthStore();
   const { driverTab, setDriverTab } = useNavStore();
   const { currentTrip } = useTripStore();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const userRef = useRef(user);
 
+  // Manter ref atualizado
+  useEffect(() => { userRef.current = user; }, [user]);
+
+  // ── Enviar localização GPS ────────────────────────
+  const sendLocation = async () => {
+    const currentUser = userRef.current;
+    if (!currentUser?.id) return;
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000,
+        });
+      });
+      await fetch('/api/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          driverId: currentUser.id,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        }),
+      });
+    } catch {
+      // GPS indisponível no contexto (ex: desktop sem permissão)
+    }
+  };
+
+  // ── Rastreamento GPS: iniciar/parar ────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    // Enviar primeira posição
+    sendLocation();
+
+    // Enviar a cada 15 segundos
+    intervalRef.current = setInterval(sendLocation, LOCATION_INTERVAL_MS);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [user]);
+
+  // ── Render ─────────────────────────────────────────
   const renderTab = () => {
     switch (driverTab) {
       case 'new':

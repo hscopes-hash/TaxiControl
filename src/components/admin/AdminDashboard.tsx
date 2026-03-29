@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -106,52 +106,64 @@ export default function AdminDashboard() {
     completedTrips: 0,
     totalRevenue: 0,
     activeDrivers: 0,
+    activeTrips: 0,
   });
   const [recentTrips, setRecentTrips] = useState<CompletedTrip[]>([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Fetch all data in parallel
-        const [usersRes, tripsRes, locationsRes, reportsRes] = await Promise.all([
-          fetch('/api/users'),
-          fetch('/api/trips?status=FINALIZADA'),
-          fetch('/api/location'),
-          fetch('/api/reports'),
-        ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [usersRes, tripsRes, locationsRes, reportsRes, activeTripsRes] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/trips?status=FINALIZADA'),
+        fetch('/api/location'),
+        fetch('/api/reports'),
+        fetch('/api/trips?status=EM_ANDAMENTO'),
+      ]);
 
-        // Parse responses
-        const [usersData, tripsData, locationsData, reportsData] = await Promise.all([
-          usersRes.json(),
-          tripsRes.json(),
-          locationsRes.json(),
-          reportsRes.json(),
-        ]);
+      const [usersData, tripsData, locationsData, reportsData, activeTripsData] = await Promise.all([
+        usersRes.json(),
+        tripsRes.json(),
+        locationsRes.json(),
+      reportsRes.json(),
+        activeTripsRes.json(),
+      ]);
 
-        const totalDrivers = usersData.users?.length || 0;
-        const completedTrips = tripsData.trips?.length || 0;
-        const totalRevenue = reportsData.summary?.totalFare || 0;
-        const activeDrivers = locationsData.locations?.length || 0;
+      const driversWithLocation = new Set(locationsData.locations?.map((l: any) => l.driverId));
+      const driversWithTrip = new Set((activeTripsData.trips || []).map((t: any) => t.driverId));
+      const allActive = new Set([...driversWithLocation, ...driversWithTrip]);
 
-        setStats({
-          totalDrivers,
-          completedTrips,
-          totalRevenue,
-          activeDrivers,
-        });
+      setStats({
+        totalDrivers: usersData.users?.length || 0,
+        completedTrips: tripsData.trips?.length || 0,
+        totalRevenue: reportsData.summary?.totalFare || 0,
+        activeDrivers: allActive.size,
+        activeTrips: (activeTripsData.trips || []).length,
+      });
 
-        // Last 5 completed trips
-        const lastTrips = (tripsData.trips || []).slice(0, 5) as CompletedTrip[];
-        setRecentTrips(lastTrips);
-      } catch (error) {
-        console.error('Erro ao carregar dados do painel:', error);
-      } finally {
-        setLoading(false);
-      }
+      const lastTrips = (tripsData.trips || []).slice(0, 5) as CompletedTrip[];
+      setRecentTrips(lastTrips);
+    } catch (error) {
+      console.error('Erro ao carregar dados do painel:', error);
     }
-
-    fetchData();
   }, []);
+
+  // Primeira carga + polling a cada 5 segundos
+  useEffect(() => {
+    let cancelled = false;
+
+    const poll = async () => {
+      if (cancelled) return;
+      await fetchData();
+      if (!cancelled) {
+        setLoading(false);
+        setTimeout(poll, 5000);
+      }
+    };
+
+    poll();
+
+    return () => { cancelled = true; };
+  }, [fetchData]);
 
   if (loading) {
     return (
@@ -214,7 +226,7 @@ export default function AdminDashboard() {
           title="Motoristas Ativos"
           value={stats.activeDrivers.toString()}
           icon={<MapPin className="h-5 w-5 text-blue-500" />}
-          description="Online no momento"
+          description={stats.activeTrips > 0 ? `${stats.activeTrips} em corrida agora` : 'Online no momento'}
           delay={0.3}
         />
       </div>
