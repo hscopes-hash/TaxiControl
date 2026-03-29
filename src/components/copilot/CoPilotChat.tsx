@@ -7,19 +7,13 @@ import {
   Mic,
   MicOff,
   Send,
-  X,
-  Car,
   Bot,
   User,
   Volume2,
   VolumeX,
-  MessageCircle,
   Sparkles,
-  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
   SheetContent,
@@ -33,7 +27,6 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  audioUrl?: string;
   isTranscription?: boolean;
 }
 
@@ -44,15 +37,6 @@ function generateId() {
 
 function formatTime(date: Date) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
-
-// ── TTS Audio helper ─────────────────────────────────────
-function playAudioBlob(blob: Blob) {
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  audio.play().catch(() => {});
-  audio.onended = () => URL.revokeObjectURL(url);
-  return audio;
 }
 
 // ── WELCOME MESSAGE ──────────────────────────────────────
@@ -75,12 +59,11 @@ export default function CoPilotChat() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
   const hasGreeted = useRef(false);
 
   // ── Auto-scroll on new message ─────────────────────
@@ -90,55 +73,71 @@ export default function CoPilotChat() {
     }
   }, [messages]);
 
+  // ── Speak text using Web Speech API (nativo do navegador) ──
+  const speakText = useCallback((text: string) => {
+    if (!soundEnabled || typeof window === 'undefined') return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    // Strip markdown-like formatting for cleaner speech
+    const cleanText = text
+      .replace(/\*\*/g, '')
+      .replace(/#{1,6}\s/g, '')
+      .replace(/```[\s\S]*?```/g, 'código omitido.')
+      .replace(/[•\-]\s/g, '')
+      .replace(/\n+/g, '. ')
+      .trim();
+
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Try to find a Portuguese voice
+    const voices = window.speechSynthesis.getVoices();
+    const ptVoice = voices.find(
+      (v) => v.lang.startsWith('pt') || v.lang.startsWith('pt-BR')
+    );
+    if (ptVoice) {
+      utterance.voice = ptVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  }, [soundEnabled]);
+
+  // ── Stop speaking ──────────────────────────────────
+  const stopSpeaking = useCallback(() => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }, []);
+
+  // ── Preload voices ─────────────────────────────────
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
+
   // ── Greeting on first open ─────────────────────────
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     if (!hasGreeted.current) {
       hasGreeted.current = true;
       setMessages([WELCOME_MSG]);
-      // Auto-speak greeting
-      setTimeout(() => speakText(WELCOME_MSG.content), 600);
+      setTimeout(() => speakText(WELCOME_MSG.content), 800);
     }
-  }, []);
-
-  // ── Stop speaking ──────────────────────────────────
-  const stopSpeaking = useCallback(() => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      setCurrentAudio(null);
-      setIsSpeaking(false);
-    }
-  }, [currentAudio]);
-
-  // ── Speak text via TTS ─────────────────────────────
-  const speakText = useCallback(async (text: string) => {
-    if (!soundEnabled) return;
-
-    stopSpeaking();
-
-    try {
-      const res = await fetch('/api/copilot/speak', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.slice(0, 1024) }),
-      });
-
-      if (!res.ok) return;
-
-      const blob = await res.blob();
-      const audio = playAudioBlob(blob);
-      setCurrentAudio(audio);
-      setIsSpeaking(true);
-
-      audio.onended = () => {
-        setIsSpeaking(false);
-        setCurrentAudio(null);
-      };
-    } catch {
-      // Silently fail - voice is optional
-    }
-  }, [soundEnabled, stopSpeaking]);
+  }, [speakText]);
 
   // ── Send message to AI ────────────────────────────
   const sendMessage = useCallback(async (text: string) => {
@@ -155,9 +154,9 @@ export default function CoPilotChat() {
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setIsProcessing(true);
+    stopSpeaking();
 
     try {
-      // Build history for context (exclude system/welcome)
       const chatHistory = messages
         .filter(m => m.id !== 'welcome')
         .map(m => ({ role: m.role, content: m.content }));
@@ -182,8 +181,6 @@ export default function CoPilotChat() {
       };
 
       setMessages(prev => [...prev, assistantMsg]);
-
-      // Speak the response
       setTimeout(() => speakText(aiResponse), 300);
     } catch {
       const errorMsg: ChatMessage = {
@@ -196,9 +193,9 @@ export default function CoPilotChat() {
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing, messages, speakText]);
+  }, [isProcessing, messages, speakText, stopSpeaking]);
 
-  // ── Audio Recording ───────────────────────────────
+  // ── Audio Recording → ASR ─────────────────────────
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -215,9 +212,7 @@ export default function CoPilotChat() {
       };
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
-
         if (audioChunksRef.current.length === 0) return;
 
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
@@ -238,7 +233,6 @@ export default function CoPilotChat() {
             const transcription = data.transcription || '';
 
             if (transcription.trim()) {
-              // Add as user message and send to AI
               const userMsg: ChatMessage = {
                 id: generateId(),
                 role: 'user',
@@ -248,7 +242,6 @@ export default function CoPilotChat() {
               };
               setMessages(prev => [...prev, userMsg]);
 
-              // Now send to AI
               const chatHistory = messages
                 .filter(m => m.id !== 'welcome')
                 .map(m => ({ role: m.role, content: m.content }));
@@ -290,7 +283,7 @@ export default function CoPilotChat() {
       mediaRecorder.start();
       setIsRecording(true);
     } catch {
-      toast.error('Não foi possível acessar o microfone. Verifique as permissões do navegador.');
+      toast.error('Não foi possível acessar o microfone. Verifique as permissões.');
     }
   }, [messages, speakText]);
 
@@ -315,6 +308,15 @@ export default function CoPilotChat() {
     e.preventDefault();
     sendMessage(inputText);
   };
+
+  // ── Cleanup speech on unmount ─────────────────────
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // ── Render ────────────────────────────────────────
   return (
@@ -342,14 +344,16 @@ export default function CoPilotChat() {
             ) : (
               <Mic className="h-6 w-6" />
             )}
-            {/* Pulse ring */}
             <span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-20" />
           </motion.button>
         )}
       </AnimatePresence>
 
       {/* ── Chat Sheet ──────────────────────────────── */}
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={isOpen} onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) stopSpeaking();
+      }}>
         <SheetContent
           side="right"
           className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
@@ -370,21 +374,19 @@ export default function CoPilotChat() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                  className="h-8 w-8 text-white hover:bg-white/20"
-                  aria-label={soundEnabled ? 'Desativar voz' : 'Ativar voz'}
-                >
-                  {soundEnabled ? (
-                    <Volume2 className="h-4 w-4" />
-                  ) : (
-                    <VolumeX className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="h-8 w-8 text-white hover:bg-white/20"
+                aria-label={soundEnabled ? 'Desativar voz' : 'Ativar voz'}
+              >
+                {soundEnabled ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <VolumeX className="h-4 w-4" />
+                )}
+              </Button>
             </div>
           </SheetHeader>
 
@@ -475,9 +477,7 @@ export default function CoPilotChat() {
                       ))}
                     </div>
                     <span className="text-xs text-gray-400">
-                      {isRecording
-                        ? 'Ouvindo...'
-                        : 'Pensando...'}
+                      {isRecording ? 'Ouvindo...' : 'Pensando...'}
                     </span>
                   </div>
                 </div>
@@ -487,7 +487,6 @@ export default function CoPilotChat() {
 
           {/* ── Input Area ───────────────────────────── */}
           <div className="border-t bg-white px-3 py-3">
-            {/* Voice status */}
             {isRecording && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -508,7 +507,6 @@ export default function CoPilotChat() {
             )}
 
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
-              {/* Text Input */}
               <input
                 ref={inputRef}
                 type="text"
@@ -519,7 +517,6 @@ export default function CoPilotChat() {
                 className="h-10 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:opacity-50"
               />
 
-              {/* Mic Button */}
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.05 }}
@@ -540,7 +537,6 @@ export default function CoPilotChat() {
                 )}
               </motion.button>
 
-              {/* Send Button */}
               <motion.button
                 type="submit"
                 whileHover={{ scale: 1.05 }}
