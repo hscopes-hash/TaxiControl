@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/card';
 import { useAuthStore, useNavStore } from '@/lib/store';
 import type { User as UserType } from '@/lib/store';
+import { VERSION } from '@/lib/version';
 
 const DEMO_CREDENTIALS = [
   {
@@ -317,8 +318,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="mt-6 text-center text-xs text-gray-600"
         >
-          &copy; {new Date().getFullYear()} TaxiControl Pro &middot; Todos os direitos
-          reservados
+          &copy; {new Date().getFullYear()} TaxiControl Pro &middot; v{VERSION}
         </motion.p>
       </motion.div>
     </div>

@@ -26,6 +26,7 @@ import {
 import { useAuthStore, useNavStore } from '@/lib/store';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { VERSION } from '@/lib/version';
 
 import AdminDashboard from './AdminDashboard';
 import DriverManagement from './DriverManagement';
@@ -68,6 +69,7 @@ function SidebarNav({
           </h1>
           <p className="text-xs font-medium text-amber-500">Pro Admin</p>
         </div>
+        <span className="ml-auto text-[10px] text-muted-foreground font-mono">v{VERSION}</span>
       </div>
 
       <Separator />
@@ -232,6 +234,7 @@ export default function AdminLayout() {
             <span className="text-sm font-bold text-foreground">
               TaxiControl Pro
             </span>
+            <span className="text-[10px] text-muted-foreground font-mono">v{VERSION}</span>
           </div>
 
           <div className="hidden md:flex items-center gap-3">

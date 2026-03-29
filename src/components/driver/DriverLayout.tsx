@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore, useNavStore, useTripStore } from '@/lib/store';
 import type { User as UserType, Trip, AppSettings } from '@/lib/store';
+import { VERSION } from '@/lib/version';
 
 import DriverDashboard from './DriverDashboard';
 import NewTripForm from './NewTripForm';
@@ -79,6 +80,7 @@ export default function DriverLayout() {
           >
             <LogOut className="size-5" />
           </Button>
+          <span className="text-[10px] text-gray-400 font-mono">v{VERSION}</span>
         </div>
       </header>
 
